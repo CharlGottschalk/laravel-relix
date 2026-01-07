@@ -21,7 +21,7 @@
 <div class="mx-auto max-w-6xl px-4 py-8">
     <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <img src="{{ asset('vendor/relix/logo.png') }}" alt="Relix logo" class="h-20 w-auto" />
+            <img src="{{ route('relix.assets.logo') }}" alt="Relix logo" class="h-20 w-auto" />
         </div>
         <div class="text-xs text-slate-400">
             Connection: <span class="font-mono">{{ $connectionName }}</span>

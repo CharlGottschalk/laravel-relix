@@ -59,6 +59,16 @@ class RelixController
         return back()->with('status', 'Rules saved.');
     }
 
+    public function logo()
+    {
+        $path = __DIR__ . '/../../../resources/assets/logo.png';
+
+        return response()->file($path, [
+            'Content-Type' => 'image/png',
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
+    }
+
     public function generateSeeders(Request $request, RelixManager $relix): RedirectResponse
     {
         $data = $request->validate([

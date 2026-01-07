@@ -1,6 +1,6 @@
 # Laravel Relix
 
-Generate Laravel database seeders (or seed directly) from your **current database schema** using `doctrine/dbal` introspection + `fakerphp/faker`.
+Generate Laravel seeders from your existing database schema by producing a rules JSON file—typically generated from an LLM prompt (via the UI or CLI) and then used by Relix to generate seeder classes or seed directly.
 
 > [!WARNING]
 > Laravel Relix is currently in **beta**. Expect breaking changes and unfinished features.
@@ -29,13 +29,7 @@ Publish config (optional):
 php artisan vendor:publish --tag=relix-config
 ```
 
-Publish UI assets (optional):
-
-```bash
-php artisan vendor:publish --tag=relix-assets
-```
-
-This publishes package assets (like `logo.png`) to `public/vendor/relix`.
+This publishes package assets to `public/vendor/relix` (optional; the UI will still display the built-in logo without publishing).
 
 ## Rules format (JSON)
 

@@ -9,6 +9,7 @@ Route::middleware(array_merge(config('relix.ui.middleware', ['web']), [EnsureRel
     ->name('relix.')
     ->group(function () {
         Route::get('/', [RelixController::class, 'index'])->name('index');
+        Route::get('/assets/logo.png', [RelixController::class, 'logo'])->name('assets.logo');
         Route::post('/generate-seeders', [RelixController::class, 'generateSeeders'])->name('generate-seeders');
         Route::post('/seed', [RelixController::class, 'seed'])->name('seed');
         Route::post('/rules', [RelixController::class, 'saveRules'])->name('rules.save');

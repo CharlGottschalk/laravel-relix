@@ -72,14 +72,6 @@ class LaravelRelixServiceProvider extends ServiceProvider
             __DIR__ . '/../config/relix.php' => config_path('relix.php'),
         ], 'relix-config');
 
-        $this->publishes([
-            __DIR__ . '/../resources/views' => resource_path('views/vendor/relix'),
-        ], 'relix-views');
-
-        $this->publishes([
-            __DIR__ . '/../resources/assets' => public_path('vendor/relix'),
-        ], 'relix-assets');
-
         if ($this->app->runningInConsole()) {
             $this->commands([
                 GenerateFactoriesCommand::class,
