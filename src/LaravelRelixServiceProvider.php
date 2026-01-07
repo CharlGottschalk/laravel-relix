@@ -5,6 +5,7 @@ namespace CharlGottschalk\LaravelRelix;
 use CharlGottschalk\LaravelRelix\Commands\GenerateSeedersCommand;
 use CharlGottschalk\LaravelRelix\Commands\GenerateFactoriesCommand;
 use CharlGottschalk\LaravelRelix\Commands\GenerateRulesWithLlmCommand;
+use CharlGottschalk\LaravelRelix\Commands\PrintLlmPromptCommand;
 use CharlGottschalk\LaravelRelix\Commands\SeedDatabaseCommand;
 use CharlGottschalk\LaravelRelix\Eloquent\FactoryGenerator;
 use CharlGottschalk\LaravelRelix\Eloquent\ModelRegistry;
@@ -84,6 +85,7 @@ class LaravelRelixServiceProvider extends ServiceProvider
                 GenerateFactoriesCommand::class,
                 GenerateSeedersCommand::class,
                 GenerateRulesWithLlmCommand::class,
+                PrintLlmPromptCommand::class,
                 SeedDatabaseCommand::class,
             ]);
         }

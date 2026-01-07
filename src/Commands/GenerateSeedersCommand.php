@@ -4,6 +4,7 @@ namespace CharlGottschalk\LaravelRelix\Commands;
 
 use CharlGottschalk\LaravelRelix\RelixManager;
 use Illuminate\Console\Command;
+use RuntimeException;
 
 class GenerateSeedersCommand extends Command
 {
@@ -20,11 +21,16 @@ class GenerateSeedersCommand extends Command
         $count = $this->option('count') !== null ? (int) $this->option('count') : null;
         $path = $this->option('path') ?: null;
 
-        if ((bool) $this->option('factories')) {
-            $relix->generateFactories();
-        }
+        try {
+            if ((bool) $this->option('factories')) {
+                $relix->generateFactories();
+            }
 
-        $result = $relix->generateSeeders($count, $path);
+            $result = $relix->generateSeeders($count, $path);
+        } catch (RuntimeException $e) {
+            $this->error($e->getMessage());
+            return self::FAILURE;
+        }
 
         $this->info('Generated ' . $result['generated'] . ' seeder(s) in ' . $result['path']);
 

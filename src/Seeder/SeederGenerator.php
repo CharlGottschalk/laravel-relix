@@ -87,7 +87,7 @@ class {$className} extends Seeder
 {
     public function run(): void
     {
-        \$rules = app(RulesRepository::class)->get();
+        \$rules = app(RulesRepository::class)->getRequired();
         app(SeederRunner::class)->seedTable('{$tableName}', \$rules, {$defaultCount}, false);
     }
 }

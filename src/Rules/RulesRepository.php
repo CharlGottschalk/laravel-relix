@@ -40,12 +40,34 @@ class RulesRepository
             return new Ruleset(['version' => 1, 'tables' => []], $json);
         }
 
-        if (! isset($payload['tables']) || ! is_array($payload['tables'])) {
-            $payload['tables'] = [];
+        $payload = $this->normalizePayload($payload);
+
+        return new Ruleset($payload, $json);
+    }
+
+    public function getRequired(): Ruleset
+    {
+        $path = $this->path();
+
+        if (! $this->files->exists($path)) {
+            throw new RuntimeException('Missing rules file at ' . $path . '. Create it via the UI or save rules JSON first.');
         }
 
-        if (! isset($payload['exclude_tables']) || ! is_array($payload['exclude_tables'])) {
-            $payload['exclude_tables'] = [];
+        $json = (string) $this->files->get($path);
+
+        if (trim($json) === '') {
+            throw new RuntimeException('Rules file is empty at ' . $path . '. Add rules JSON before running Relix.');
+        }
+
+        $payload = json_decode($json, true);
+        if (! is_array($payload)) {
+            throw new RuntimeException('Rules must be valid JSON in ' . $path . '.');
+        }
+
+        $payload = $this->normalizePayload($payload);
+
+        if (! isset($payload['tables']) || ! is_array($payload['tables']) || count($payload['tables']) === 0) {
+            throw new RuntimeException('Rules must define at least one table in `tables` (file: ' . $path . ').');
         }
 
         return new Ruleset($payload, $json);
@@ -53,10 +75,20 @@ class RulesRepository
 
     public function save(string $json): void
     {
+        if (trim($json) === '') {
+            throw new RuntimeException('Rules file cannot be empty.');
+        }
+
         $payload = json_decode($json, true);
 
         if (! is_array($payload)) {
             throw new RuntimeException('Rules must be valid JSON.');
+        }
+
+        $payload = $this->normalizePayload($payload);
+
+        if (count($payload['tables']) === 0) {
+            throw new RuntimeException('Rules must define at least one table in `tables`.');
         }
 
         $this->writePayload($payload);
@@ -71,6 +103,10 @@ class RulesRepository
         $payload = $rules->payload;
         $payload['exclude_tables'] = $this->normalizeStringList($tables);
 
+        if (! isset($payload['tables']) || ! is_array($payload['tables']) || count($payload['tables']) === 0) {
+            throw new RuntimeException('Rules must define at least one table in `tables` before exclusions can be saved.');
+        }
+
         $this->writePayload($payload);
     }
 
@@ -78,6 +114,24 @@ class RulesRepository
      * @param array<string, mixed> $payload
      */
     private function writePayload(array $payload): void
+    {
+        $payload = $this->normalizePayload($payload);
+
+        $path = $this->path();
+        $dir = dirname($path);
+
+        if (! $this->files->isDirectory($dir)) {
+            $this->files->makeDirectory($dir, 0755, true);
+        }
+
+        $this->files->put($path, json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     * @return array<string, mixed>
+     */
+    private function normalizePayload(array $payload): array
     {
         if (! isset($payload['version'])) {
             $payload['version'] = 1;
@@ -93,14 +147,7 @@ class RulesRepository
 
         $payload['exclude_tables'] = $this->normalizeStringList($payload['exclude_tables']);
 
-        $path = $this->path();
-        $dir = dirname($path);
-
-        if (! $this->files->isDirectory($dir)) {
-            $this->files->makeDirectory($dir, 0755, true);
-        }
-
-        $this->files->put($path, json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+        return $payload;
     }
 
     /**

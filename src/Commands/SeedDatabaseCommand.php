@@ -4,6 +4,7 @@ namespace CharlGottschalk\LaravelRelix\Commands;
 
 use CharlGottschalk\LaravelRelix\RelixManager;
 use Illuminate\Console\Command;
+use RuntimeException;
 
 class SeedDatabaseCommand extends Command
 {
@@ -22,7 +23,12 @@ class SeedDatabaseCommand extends Command
         $tables = $this->option('tables');
         $tables = is_array($tables) && count($tables) ? array_values($tables) : null;
 
-        $result = $relix->seedDatabase($count, $truncate, $tables);
+        try {
+            $result = $relix->seedDatabase($count, $truncate, $tables);
+        } catch (RuntimeException $e) {
+            $this->error($e->getMessage());
+            return self::FAILURE;
+        }
 
         $this->info('Seeded ' . $result['seeded_tables'] . ' table(s)');
 

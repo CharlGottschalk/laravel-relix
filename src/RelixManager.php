@@ -36,6 +36,11 @@ class RelixManager
         return (new RulesRepository($this->config, $this->files))->get();
     }
 
+    public function rulesRequired(): Rules\Ruleset
+    {
+        return (new RulesRepository($this->config, $this->files))->getRequired();
+    }
+
     /**
      * @return list<string>
      */
@@ -83,7 +88,7 @@ class RelixManager
     public function generateSeeders(?int $count = null, ?string $outputPath = null): array
     {
         $schema = $this->schema();
-        $rules = $this->rules();
+        $rules = $this->rulesRequired();
 
         $generator = new SeederGenerator($this->config, $this->files);
 
@@ -100,7 +105,7 @@ class RelixManager
     public function seedDatabase(?int $count = null, bool $truncate = false, ?array $tables = null): array
     {
         $schema = $this->schema();
-        $rules = $this->rules();
+        $rules = $this->rulesRequired();
         $connection = DB::connection($this->connectionName());
 
         $runner = new SeederRunner($this->config, $connection);
@@ -108,11 +113,22 @@ class RelixManager
         return $runner->seed($schema, $rules, $count, $truncate, $tables);
     }
 
-    public function prompt(): string
+    /**
+     * @param list<string> $extraExcludedTables
+     */
+    public function prompt(array $extraExcludedTables = []): string
     {
         $schema = $this->schema();
 
-        return Prompt\PromptBuilder::build($schema, $this->excludedTables());
+        $excluded = array_merge($this->excludedTables(), $extraExcludedTables);
+
+        $excluded = array_values(array_filter(array_map(function ($t) {
+            return is_string($t) ? trim($t) : '';
+        }, $excluded), fn (string $t) => $t !== ''));
+        $excluded = array_values(array_unique($excluded));
+        sort($excluded);
+
+        return Prompt\PromptBuilder::build($schema, $excluded);
     }
 
     public function databaseName(): ?string

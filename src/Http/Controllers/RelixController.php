@@ -12,16 +12,29 @@ use RuntimeException;
 
 class RelixController
 {
-    public function index(RelixManager $relix): View
+    public function index(RelixManager $relix, RulesRepository $rulesRepository): View
     {
         $schema = $relix->schema();
+        $rules = $relix->rules();
+        $rulesJson = $rules->rawJson ?? '';
+        $rulesReady = true;
+        $rulesError = null;
+
+        try {
+            $rulesRepository->getRequired();
+        } catch (RuntimeException $e) {
+            $rulesReady = false;
+            $rulesError = $e->getMessage();
+        }
 
         return view('relix::index', [
             'schema' => $schema,
             'prompt' => $relix->prompt(),
-            'rulesJson' => $relix->rules()->rawJson ?? "{\n  \"version\": 1,\n  \"tables\": {}\n}\n",
+            'rulesJson' => $rulesJson,
             'rulesPath' => $relix->rulesPath(),
             'llmEnabled' => config('relix.llm.enabled', false),
+            'rulesReady' => $rulesReady,
+            'rulesError' => $rulesError,
             'defaultCount' => (int) config('relix.defaults.count', 25),
             'connectionName' => $relix->connectionName() ?? config('database.default'),
             'databaseName' => $relix->databaseName(),
@@ -55,11 +68,17 @@ class RelixController
 
         $count = $data['count'] ?? null;
 
-        if ((bool) ($data['factories'] ?? false)) {
-            $relix->generateFactories();
-        }
+        try {
+            if ((bool) ($data['factories'] ?? false)) {
+                $relix->generateFactories();
+            }
 
-        $result = $relix->generateSeeders($count);
+            $result = $relix->generateSeeders($count);
+        } catch (RuntimeException $e) {
+            return back()
+                ->withInput()
+                ->withErrors(['rules' => $e->getMessage()]);
+        }
 
         return back()->with('status', 'Generated ' . $result['generated'] . ' seeder(s) in ' . $result['path']);
     }
@@ -74,7 +93,13 @@ class RelixController
         $count = $data['count'] ?? null;
         $truncate = (bool) ($data['truncate'] ?? false);
 
-        $result = $relix->seedDatabase($count, $truncate);
+        try {
+            $result = $relix->seedDatabase($count, $truncate);
+        } catch (RuntimeException $e) {
+            return back()
+                ->withInput()
+                ->withErrors(['rules' => $e->getMessage()]);
+        }
 
         return back()->with('status', 'Seeded ' . $result['seeded_tables'] . ' table(s).');
     }
@@ -104,7 +129,14 @@ class RelixController
         $json = json_encode($rules, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n";
 
         if ((bool) ($data['save'] ?? true)) {
-            $rulesRepository->save($json);
+            try {
+                $rulesRepository->save($json);
+            } catch (RuntimeException $e) {
+                return back()
+                    ->withInput()
+                    ->withErrors(['rules' => $e->getMessage()]);
+            }
+
             return back()->with('status', 'Generated rules via LLM and saved to ' . $rulesRepository->path() . '.');
         }
 
@@ -125,7 +157,13 @@ class RelixController
         $excluded = array_values(array_filter($excluded, fn (string $t) => in_array($t, $schemaTables, true)));
         sort($excluded);
 
-        $relix->setExcludedTables($excluded);
+        try {
+            $relix->setExcludedTables($excluded);
+        } catch (RuntimeException $e) {
+            return back()
+                ->withInput()
+                ->withErrors(['rules' => $e->getMessage()]);
+        }
 
         return back()->with('status', 'Saved table exclusions.');
     }

@@ -5,6 +5,18 @@
 <x-relix::layout :connection-name="$connectionName" title="Relix">
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div class="lg:col-span-2 space-y-6">
+            @if (! $rulesReady)
+                <div class="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
+                    <div class="text-sm font-medium text-amber-100">Rules required</div>
+                    <div class="mt-1 text-xs text-amber-200/80">
+                        Relix won’t generate/seed until a non-empty rules file exists at <span class="font-mono">{{ $rulesPath }}</span>.
+                    </div>
+                    @if (is_string($rulesError) && $rulesError !== '')
+                        <div class="mt-2 text-xs text-amber-200/80">{{ $rulesError }}</div>
+                    @endif
+                </div>
+            @endif
+
             <div class="rounded-xl border border-slate-800 bg-slate-900/40 p-5">
                 <div class="mb-3 flex items-center justify-between gap-4">
                     <div>
@@ -26,7 +38,7 @@
             <div class="rounded-xl border border-slate-800 bg-slate-900/40 p-5">
                 <div class="mb-3">
                     <div class="text-sm font-medium text-slate-200">Generate With LLM (currently OpenAI only)</div>
-                    <div class="text-xs text-slate-400">Optional: call the configured LLM provider and save rules automatically.</div>
+                    <div class="text-xs text-slate-400">Optional: call OpenAI and save rules automatically.</div>
                 </div>
                 <form method="post" action="{{ route('relix.llm.generate-rules') }}" class="space-y-3">
                     @csrf
@@ -57,7 +69,7 @@
                 </div>
                 <form method="post" action="{{ route('relix.rules.save') }}" class="space-y-3">
                     @csrf
-                    <textarea name="rules" rows="12" class="w-full rounded-lg border border-slate-800 bg-slate-950 p-3 font-mono text-xs text-slate-100 shadow-sm outline-none ring-1 ring-transparent focus:border-slate-600 focus:ring-slate-400/20">{{ old('rules', $rulesJson) }}</textarea>
+                    <textarea name="rules" rows="12" placeholder="Paste rules JSON here..." class="w-full rounded-lg border border-slate-800 bg-slate-950 p-3 font-mono text-xs text-slate-100 shadow-sm outline-none ring-1 ring-transparent focus:border-slate-600 focus:ring-slate-400/20">{{ old('rules', $rulesJson) }}</textarea>
                     <div class="flex items-center justify-end gap-2">
                         <button class="rounded-md bg-slate-800 px-3 py-2 text-sm font-medium text-slate-100 shadow-sm hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400/20">
                             Save rules
@@ -87,7 +99,7 @@
                                     Generate missing factories
                                 </label>
                             </div>
-                            <button class="rounded-md bg-indigo-500 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
+                            <button @disabled(! $rulesReady) class="rounded-md bg-indigo-500 px-3 py-2 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40 {{ $rulesReady ? 'hover:bg-indigo-400' : 'cursor-not-allowed opacity-50' }}">
                                 Generate seeders
                             </button>
                         </div>
@@ -107,7 +119,7 @@
                                     Truncate tables
                                 </label>
                             </div>
-                            <button class="rounded-md bg-emerald-500 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+                            <button @disabled(! $rulesReady) class="rounded-md bg-emerald-500 px-3 py-2 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 {{ $rulesReady ? 'hover:bg-emerald-400' : 'cursor-not-allowed opacity-50' }}">
                                 Seed now
                             </button>
                         </div>
@@ -168,7 +180,7 @@
                     </div>
 
                     <div class="flex items-center justify-end">
-                        <button class="rounded-md bg-slate-800 px-3 py-2 text-sm font-medium text-slate-100 shadow-sm hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400/20">
+                        <button @disabled(! $rulesReady) class="rounded-md bg-slate-800 px-3 py-2 text-sm font-medium text-slate-100 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-400/20 {{ $rulesReady ? 'hover:bg-slate-700' : 'cursor-not-allowed opacity-50' }}">
                             Save exclusions
                         </button>
                     </div>
