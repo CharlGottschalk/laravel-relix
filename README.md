@@ -1,4 +1,6 @@
-# Laravel Relix
+<p align="center">
+  <img src="resources/assets/logo.png" alt="Relix Logo" width="300">
+</p>
 
 Generate Laravel seeders from your existing database schema by producing a rules JSON file—typically generated from an LLM prompt (via the UI or CLI) and then used by Relix to generate seeder classes or seed directly.
 
@@ -108,7 +110,9 @@ Enabled by default in `local` only.
   - Exclude tables
   - Optional: generate rules via LLM if enabled
 
-![Relix UI](ui.jpg)
+<p align="center">
+  <img src="ui.jpg" alt="Relix UI" width="800">
+</p>
 
 Config: `config/relix.php`
 
