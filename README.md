@@ -16,6 +16,7 @@ Generate Laravel seeders from your existing database schema by producing a rules
 - [Eloquent factories (optional)](#eloquent-factories-optional)
 - [Config](#config)
 - [Tailwind setup](#tailwind-setup)
+- [Roadmap](#roadmap)
 
 ## Install
 
@@ -202,3 +203,15 @@ content: [
   "./vendor/charlgottschalk/laravel-relix/resources/views/**/*.blade.php",
 ],
 ```
+
+## Roadmap
+
+- Rules authoring UX: table/column editor, validation, preview/dry-run
+- Schema scoping: `--only`, regex include/exclude, dependency graph
+- More LLM providers: Anthropic/Gemini/local (Ollama) with a provider-agnostic interface
+- Deterministic seeding: global seed, reproducible datasets, schema+rules fingerprinting
+- Better constraints support: unique/enums/checks/json/polymorphic relations
+- FK-safe seeding: improved ordering, optional deferred constraints, pivot controls
+- Factory integration: better model discovery, richer factory generation, per-model overrides
+- Safety controls: truncate confirmations, environment lockouts, safe mode
+- Tooling: rules vs schema validator, diagnostics “doctor” command, CI-friendly reports
