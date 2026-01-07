@@ -114,7 +114,7 @@ Config: `config/relix.php`
 ## LLM (optional)
  Generate rules JSON from your database schema using a Large Language Model (LLM).
 
-> [!INFO]
+> [!NOTE]
 > Currently only OpenAi is supported as LLM provider.
 
 Relix supports both workflows:
