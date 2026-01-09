@@ -32,8 +32,6 @@ Publish config (optional):
 php artisan vendor:publish --tag=relix-config
 ```
 
-This publishes package assets to `public/vendor/relix` (optional; the UI will still display the built-in logo without publishing).
-
 ## Rules format (JSON)
 
 Relix requires a rules file, which cannot be empty (define at least one table under `tables`).
@@ -113,8 +111,6 @@ Enabled by default in `local` only.
 <p align="center">
   <img src="ui.jpg" alt="Relix UI" width="800">
 </p>
-
-Config: `config/relix.php`
 
 ## LLM (optional)
  Generate rules JSON from your database schema using a Large Language Model (LLM).
